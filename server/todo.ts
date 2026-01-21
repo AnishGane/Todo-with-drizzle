@@ -1,0 +1,86 @@
+"use server"
+
+import { db } from "@/db/drizzle";
+import { NewTodo, todo } from "@/db/schema";
+import { auth } from "@/lib/auth";
+import { eq, desc  } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
+import {headers} from "next/headers";
+import { randomUUID } from "crypto";
+
+export const getTodo = async () => {
+    try {
+        const session = await auth.api.getSession({
+            headers: await headers(),
+        });
+
+        const userId = session?.user?.id;
+
+        if (!userId) {
+            return {
+                success: false,
+                message: "User not found",
+            }
+        }
+
+        const userTodos = await db.query.todo.findMany({
+            where: eq(todo.userId, userId),
+            orderBy: [desc(todo.createdAt)],
+        });
+
+        return {
+            success: true,
+            data: userTodos,
+        }
+    } catch (error) {
+        const e = error as Error;
+        return {
+            success: false,
+            message: e.message || "Error getting todo",
+        }
+    }
+}
+
+export const toggleTodo = async (todoId: string, completed: boolean)=>{
+    try {
+        await db.update(todo).set({
+            completed,
+            updatedAt: new Date()
+        }).where(eq(todo.id, todoId))
+
+        return {
+            success: true,
+            message: "Todo is completed",
+          };
+    } catch (error) {
+        const e = error as Error;
+    return {
+      success: false,
+      message: e.message || "Error updating todo",
+    };
+  }
+}
+
+
+export const createTodo = async (values: Omit<NewTodo, "id">) => {
+    try {
+      const todoData: NewTodo = {
+        id: randomUUID(),
+        ...values,
+      };
+  
+      await db.insert(todo).values(todoData);
+  
+      revalidatePath("/todo");
+  
+      return {
+        success: true,
+        message: "Todo created successfully",
+      };
+    } catch (error) {
+      return {
+        success: false,
+        message: (error as Error).message,
+      };
+    }
+  };
