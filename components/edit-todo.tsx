@@ -1,5 +1,5 @@
 "use client"
-import React, { useState } from "react"
+import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
@@ -12,28 +12,29 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { Input } from "@/components/ui/input"
-import { Loader2, Plus } from "lucide-react"
+import { Loader2, Pen, Plus } from "lucide-react"
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "./ui/form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { z } from "zod"
 import { useForm } from "react-hook-form"
 import { toast } from "sonner"
-import { createTodo } from "@/server/todo"
+import { updateTodo } from "@/server/todo"
 import { authClient } from "@/lib/auth-client"
 import { useRouter } from "next/navigation"
+import { TodoProps } from "@/app/todo/todo-client"
 
 const formSchema = z.object({
   title: z.string().min(5).max(30),
 })
 
-export function AddDialog() {
+export function EditDailog({todo}: {todo: TodoProps}) {
   const [isLoading, setIsLoading] = useState<boolean>(false)
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: "",
+      title: todo.title,
     },
   })
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -47,14 +48,14 @@ export function AddDialog() {
         return;
       }
   
-      const response = await createTodo({
-          ...values,
+      const response = await updateTodo(todo.id, {
+        ...values,
         userId,
       });
   
       if (response.success) {
         form.reset();
-        toast.success("Todo created successfully");
+        toast.success(response.message || "Todo created successfully");
         router.refresh();
         setIsOpen(false);
       } else {
@@ -69,15 +70,16 @@ export function AddDialog() {
    
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      
           <DialogTrigger asChild>
-            <Button className="rounded-xs">Add Todos</Button>
+            <button className="cursor-pointer mr-2">
+                <Pen className='size-4'/>
+            </button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[425px]">
             <DialogHeader>
-              <DialogTitle>Add a new Todo</DialogTitle>
+              <DialogTitle>Edit this Todo</DialogTitle>
               <DialogDescription>
-                Add a todo here so that it can be seen in `/todo`.
+                Edit the title of your todo
               </DialogDescription>
             </DialogHeader>
             <Form {...form}>
@@ -89,9 +91,8 @@ export function AddDialog() {
             <FormItem>
               <FormLabel>Title</FormLabel>
               <FormControl>
-                <Input placeholder="Buy a food" {...field} />
+                <Input {...field} />
               </FormControl>
-             
               <FormMessage />
             </FormItem>
           )}

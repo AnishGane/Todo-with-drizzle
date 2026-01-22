@@ -84,3 +84,40 @@ export const createTodo = async (values: Omit<NewTodo, "id">) => {
       };
     }
   };
+
+export const deleteTodo = async (todoId: string)=>{
+  try {
+    await db.delete(todo).where(eq(todo.id, todoId));
+
+    return {
+      success: true,
+      message: "Todo deleted successfully",
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: (error as Error).message,
+    }
+  }
+}
+
+export const updateTodo = async (todoId: string, values: Omit<NewTodo, "id">) => {
+  try {
+    const todoData: NewTodo = {
+      id: todoId,
+      ...values,
+    };
+
+    await db.update(todo).set(todoData).where(eq(todo.id, todoId));
+
+    return {
+      success: true,
+      message: "Todo updated successfully",
+    }
+  } catch (error) {
+    return {
+      success: false,
+      message: (error as Error).message,
+    }
+  }
+}
