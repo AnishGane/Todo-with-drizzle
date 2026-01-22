@@ -40,17 +40,7 @@ export function AddDialog() {
     try {
       setIsLoading(true);
 
-      const userId = (await authClient.getSession()).data?.user.id;
-
-      if (!userId) {
-        toast.error("You must be logged in to create a todo");
-        return;
-      }
-
-      const response = await createTodo({
-        ...values,
-        userId,
-      });
+      const response = await createTodo(values);
 
       if (response.success) {
         form.reset();

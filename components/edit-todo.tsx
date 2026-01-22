@@ -41,16 +41,9 @@ export function EditDailog({ todo }: { todo: TodoProps }) {
         try {
             setIsLoading(true);
 
-            const userId = (await authClient.getSession()).data?.user.id;
-
-            if (!userId) {
-                toast.error("You must be logged in to edit a todo");
-                return;
-            }
-
             const response = await updateTodo(todo.id, {
-                ...values,
-                userId,
+                ...values, // title is included in values already, so we include completed as well
+                completed: todo.completed,
             });
 
             if (response.success) {
