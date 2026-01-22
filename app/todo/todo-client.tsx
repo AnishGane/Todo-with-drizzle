@@ -70,9 +70,15 @@ export default function TodoClient({ todos }: { todos: TodoProps[] }) {
         </div>
         <CardContent>
           <ScrollArea className="h-[240px] rounded-md p-2 border">
-            {filteredTodo.map((todo) => (
-              <TodoList key={todo.id} todo={todo} />
-            ))}
+            {filteredTodo.length === 0 ? (
+              <p className="text-center text-muted-foreground py-6">
+                Add todo first
+              </p>
+            ) : (
+              filteredTodo.map((todo) => (
+                <TodoList key={todo.id} todo={todo} />
+              ))
+            )}
           </ScrollArea>
         </CardContent>
       </Card>
