@@ -3,7 +3,7 @@ import TodoClient from "./todo-client";
 import { requireAuth } from "@/lib/get-session";
 import { redirect } from "next/navigation";
 
-type TodoUI = Omit<
+export type TodoUI = Omit<
   NonNullable<Awaited<ReturnType<typeof getTodo>>["data"]>[number],
   "userId" | "updatedAt"
 >;
@@ -20,5 +20,5 @@ export default async function TodoServer() {
   const uiTodos: TodoUI[] =
     todos?.data?.map(({ userId, updatedAt, ...rest }) => rest) ?? [];
 
-  return <TodoClient todos={uiTodos}  />
+  return <TodoClient todos={uiTodos} />
 }
