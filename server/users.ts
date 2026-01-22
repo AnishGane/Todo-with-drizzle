@@ -53,3 +53,18 @@ export const signUpUser = async (
     };
   }
 };
+export const signOutUser = async () => {
+  try {
+    await auth.api.signOut();
+    return {
+      success: true,
+      message: "User signed out successfully",
+    };
+  } catch (err) {
+    const e = err as Error;
+    return {
+      success: false,
+      message: e.message || "Error signing out user",
+    };
+  }
+};

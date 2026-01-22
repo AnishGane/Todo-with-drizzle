@@ -7,16 +7,14 @@ import {
   CardTitle,
 } from '@/components/ui/card'
 
-import { CheckCheck, LogOut } from 'lucide-react'
+import { CheckCheck } from 'lucide-react'
 import { AddDialog } from '@/components/add-todo'
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 import SearchTodo from '@/components/search-todo'
 import { useQueryState } from 'nuqs'
 import TodoList from './todo-list'
-import { Button } from '@/components/ui/button'
-import { authClient } from '@/lib/auth-client'
-import { toast } from 'sonner'
+import LogoutButton from '@/components/logout-button'
 
 export type TodoProps = {
   id: string
@@ -32,22 +30,6 @@ export default function TodoClient({ todos }: { todos: TodoProps[] }) {
 
   const filteredTodo = todos.filter((todo) => todo.title.toLowerCase().includes(query));
 
-  const handleLogout = async () => {
-    try {
-      const { data, error } = await authClient.signOut({
-        fetchOptions: { credentials: 'include' },
-      });
-      if (data?.success) {
-        toast.success("Logged out successfully");
-        window.location.replace("/");
-      } else {
-        toast.error(error?.message ?? "Logout failed");
-      }
-    } catch (error) {
-      toast.error((error as Error).message);
-    }
-  }
-
   return (
     <section className="flex min-h-svh w-full flex-col items-center justify-center p-6 md:p-10">
       <Card className="w-full max-w-xl min-h-96">
@@ -59,11 +41,8 @@ export default function TodoClient({ todos }: { todos: TodoProps[] }) {
             </CardTitle>
 
             <div className="flex items-center gap-2">
-              <Button variant={"outline"} className='cursor-pointer' onClick={handleLogout}>
-                <LogOut size={18} />
-              </Button>
+              <LogoutButton/>
               <AddDialog />
-
             </div>
           </CardHeader>
           <SearchTodo />
