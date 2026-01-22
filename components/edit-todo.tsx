@@ -44,7 +44,7 @@ export function EditDailog({ todo }: { todo: TodoProps }) {
             const userId = (await authClient.getSession()).data?.user.id;
 
             if (!userId) {
-                toast.error("You must be logged in to create a todo");
+                toast.error("You must be logged in to edit a todo");
                 return;
             }
 
@@ -55,7 +55,7 @@ export function EditDailog({ todo }: { todo: TodoProps }) {
 
             if (response.success) {
                 form.reset();
-                toast.success(response.message || "Todo created successfully");
+                toast.success(response.message || "Todo updated successfully");
                 router.refresh();
                 setIsOpen(false);
             } else {

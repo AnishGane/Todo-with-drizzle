@@ -32,18 +32,20 @@ export default function TodoClient({ todos }: { todos: TodoProps[] }) {
 
   const filteredTodo = todos.filter((todo) => todo.title.toLowerCase().includes(query));
 
-  const handleLogout = async () =>{
-    const {data, error} = await authClient.signOut({
-      fetchOptions: {
-        credentials: 'include',
+  const handleLogout = async () => {
+    try {
+      const { data, error } = await authClient.signOut({
+        fetchOptions: { credentials: 'include' },
+      });
+      if (data?.success) {
+        toast.success("Logged out successfully");
+        window.location.replace("/");
+      } else {
+        toast.error(error?.message ?? "Logout failed");
       }
-    });
-    if(data?.success){
-      toast.success("Logged out successfully");
-    }else{
-      toast.error(error?.message);
+    } catch (error) {
+      toast.error((error as Error).message);
     }
-    window.location.replace("/");
   }
 
   return (
